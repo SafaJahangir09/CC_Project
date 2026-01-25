@@ -1,0 +1,33 @@
+---
+- name: Add New Website
+  hosts: all
+  become: true
+  tasks:
+    - name: Create document root directory
+      ansible.builtin.file:
+        path: "{{ doc_root }}"
+        state: directory
+        mode: '0755'
+        owner: www-data
+        group: www-data
+
+    - name: Create index.html for site
+      ansible.builtin.copy:
+        content: "<h1>Site {{ site_name }} is active on {{ inventory_hostname }}</h1>"
+        dest: "{{ doc_root }}/index.html"
+
+    - name: Create Nginx configuration
+      ansible.builtin.copy:
+        content: |
+          server {
+              listen 80;
+              server_name {{ server_name }};
+              root {{ doc_root }};
+              index index.html;
+          }
+        dest: "/etc/nginx/sites-enabled/{{ site_name }}.conf"
+
+    - name: Reload Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded

@@ -1,0 +1,24 @@
+---
+- name: Monitor Web Services
+  hosts: all
+  tasks:
+    - name: Check if Nginx is responding on localhost
+      ansible.builtin.uri:
+        url: http://localhost
+        status_code: 200
+      register: result
+
+    - name: Show Nginx status
+      ansible.builtin.debug:
+        msg: "Nginx is up and running on {{ inventory_hostname }}"
+      when: result.status == 200
+
+    - name: Verify Customer3 directory exists
+      ansible.builtin.stat:
+        path: "/var/www/customer3"
+      register: dir_check
+
+    - name: Report directory status
+      ansible.builtin.debug:
+        msg: "Directory /var/www/customer3 exists on {{ inventory_hostname }}"
+      when: dir_check.stat.exists

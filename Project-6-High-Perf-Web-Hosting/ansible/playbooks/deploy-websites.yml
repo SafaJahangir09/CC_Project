@@ -1,0 +1,16 @@
+---
+- name: Deploy Frontend and Backend
+  hosts: all
+  become: true
+  tasks:
+    - name: Create web directory
+      ansible.builtin.file:
+        path: /var/www/html/project
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Deploy basic index file
+      ansible.builtin.copy:
+        content: "<h1>Welcome to Nayab's Project on {{ inventory_hostname }}</h1>"
+        dest: /var/www/html/index.html

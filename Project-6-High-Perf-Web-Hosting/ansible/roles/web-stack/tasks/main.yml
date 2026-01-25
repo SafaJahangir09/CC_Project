@@ -1,0 +1,22 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install Nginx and PHP-FPM
+  apt:
+    name:
+      - nginx
+      - php-fpm
+    state: present
+
+- name: Start and enable Nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Start and enable PHP-FPM
+  service:
+    name: php8.1-fpm
+    state: started
+    enabled: yes

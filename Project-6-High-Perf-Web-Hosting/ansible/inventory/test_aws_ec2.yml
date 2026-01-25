@@ -1,0 +1,19 @@
+all:
+  children:
+    web:
+      hosts:
+        frontend1:
+          ansible_host: 40.172.113.41
+        frontend2:
+          ansible_host: 3.29.81.13
+    backend:
+      hosts:
+        backend1:
+          ansible_host: 3.29.129.225
+        backend2:
+          ansible_host: 3.29.151.177
+
+  vars:
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: ~/.ssh/nayab-key.pem
+    ansible_python_interpreter: /usr/bin/python3

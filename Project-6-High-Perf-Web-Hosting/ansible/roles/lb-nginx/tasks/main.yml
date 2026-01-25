@@ -1,0 +1,30 @@
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Install OpenSSL
+  apt:
+    name: openssl
+    state: present
+
+- name: Create SSL directory
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: '0755'
+
+- name: Generate self-signed certificate
+  openssl_certificate:
+    path: /etc/nginx/ssl/{{ inventory_hostname }}.crt
+    privatekey_path: /etc/nginx/ssl/{{ inventory_hostname }}.key
+    common_name: "{{ inventory_hostname }}"
+    state: present
+
+- name: Deploy Nginx LB config
+  template:
+    src: templates/lb-nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify:
+    - Restart Nginx

@@ -1,0 +1,16 @@
+---
+- name: Setup Web Stack
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt and install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        update_cache: yes
+        state: present
+
+    - name: Start Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
