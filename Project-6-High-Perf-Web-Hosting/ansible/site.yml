@@ -1,0 +1,11 @@
+---
+# Master Playbook for High-Performance Cluster
+
+- name: Import Web Stack Configuration
+  import_playbook: playbooks/provision-web-stack.yml
+
+- name: Import Load Balancer Configuration
+  import_playbook: playbooks/provision-lb.yml
+
+- name: Import Monitoring Setup
+  import_playbook: playbooks/monitoring-checks.yml

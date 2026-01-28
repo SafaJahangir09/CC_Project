@@ -4,10 +4,13 @@ regions:
 groups:
   backend: "'backend' in tags.Name"
   frontend: "'frontend' in tags.Name"
-  web: "'backend' in tags.Name" # Adding 'web' as an alias to match your LB playbook
+  web: "'backend' in tags.Name"
 keyed_groups:
   - key: tags.Name
     separator: ""
     prefix: ""
 hostnames:
-  - public-ip-address  # This tells Ansible to use the real IP as the host identifier
+  - public_ip_address
+compose:
+  ansible_host: public_ip_address
+  ansible_user: "'ubuntu'"

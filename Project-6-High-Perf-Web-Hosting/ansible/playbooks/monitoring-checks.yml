@@ -4,6 +4,7 @@
   tasks:
     - name: Check if Nginx is responding on localhost
       ansible.builtin.uri:
+        validate_certs: false
         url: http://localhost
         status_code: 200
       register: result
