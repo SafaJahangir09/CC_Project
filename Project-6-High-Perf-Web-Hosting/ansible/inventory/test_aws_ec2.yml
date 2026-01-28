@@ -3,15 +3,15 @@ all:
     web:
       hosts:
         frontend1:
-          ansible_host: 40.172.113.41
+          ansible_host: 40.172.101.56
         frontend2:
-          ansible_host: 3.29.81.13
+          ansible_host: 40.172.228.30
     backend:
       hosts:
         backend1:
-          ansible_host: 3.29.129.225
+          ansible_host: 51.112.229.70
         backend2:
-          ansible_host: 3.29.151.177
+          ansible_host: 3.29.81.22
 
   vars:
     ansible_user: ubuntu

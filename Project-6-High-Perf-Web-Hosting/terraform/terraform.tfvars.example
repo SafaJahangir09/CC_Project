@@ -1,0 +1,5 @@
+# Template for Project 6 Infrastructure
+environment       = "default"
+web_instance_type = "t3.micro"
+web_count         = 2
+admin_ip_cidr     = "ENTER_YOUR_IP_HERE/32"

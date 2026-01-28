@@ -15,16 +15,34 @@
     state: directory
     mode: '0755'
 
-- name: Generate self-signed certificate
-  openssl_certificate:
-    path: /etc/nginx/ssl/{{ inventory_hostname }}.crt
-    privatekey_path: /etc/nginx/ssl/{{ inventory_hostname }}.key
-    common_name: "{{ inventory_hostname }}"
-    state: present
+- name: Generate private key
+  openssl_privatekey:
+    path: /etc/nginx/ssl/{{ inventory_hostname }}.key
+    size: 2048
 
-- name: Deploy Nginx LB config
+- name: Generate self-signed SSL certificate (Shell)
+  shell: >
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048
+    -keyout /etc/nginx/ssl/nginx.key
+    -out /etc/nginx/ssl/nginx.crt
+    -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+  args:
+    creates: /etc/nginx/ssl/nginx.crt
+  notify: restart nginx
+
+- name: Deploy LB config
   template:
-    src: templates/lb-nginx.conf.j2
-    dest: /etc/nginx/sites-available/default
-  notify:
-    - Restart Nginx
+    src: lb-nginx.conf.j2
+    dest: /etc/nginx/sites-available/lb_config
+
+- name: Enable LB config
+  file:
+    src: /etc/nginx/sites-available/lb_config
+    dest: /etc/nginx/sites-enabled/lb_config
+    state: link
+
+- name: Remove default config
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx

@@ -1,16 +1,31 @@
 ---
-- name: Setup Web Stack
-  hosts: all
-  become: true
-  tasks:
-    - name: Update apt and install Nginx
-      ansible.builtin.apt:
-        name: nginx
-        update_cache: yes
-        state: present
+- name: Provision High-Performance Web Tier
+  hosts: backend
+  become: yes
+  vars:
+    php_version: "8.1" # Standard for Ubuntu 22.04
+  roles:
+    - web-stack
+    - websites
 
-    - name: Start Nginx
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: yes
+- name: Provision High-Performance Load Balancer
+  hosts: web
+  become: yes
+  tasks:
+    - name: Create SSL directory
+      file:
+        path: /etc/nginx/ssl
+        state: directory
+
+    - name: Requirement - Generate Self-Signed SSL Certificate
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout /etc/nginx/ssl/nginx.key
+        -out /etc/nginx/ssl/nginx.crt
+        -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+      args:
+        creates: /etc/nginx/ssl/nginx.crt
+
+  roles:
+    - lb-nginx
+    - monitoring

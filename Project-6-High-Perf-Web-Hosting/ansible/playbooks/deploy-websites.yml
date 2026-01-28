@@ -1,16 +1,16 @@
 ---
-- name: Deploy Frontend and Backend
-  hosts: all
-  become: true
+- name: Deploy Customer PHP Content
+  hosts: tag_Role_web
+  become: yes
   tasks:
-    - name: Create web directory
-      ansible.builtin.file:
-        path: /var/www/html/project
-        state: directory
+    - name: Copy Customer 1 Index
+      copy:
+        src: ../../websites/customer1/index.php
+        dest: /var/www/customer1/index.php
         owner: www-data
-        group: www-data
 
-    - name: Deploy basic index file
-      ansible.builtin.copy:
-        content: "<h1>Welcome to Nayab's Project on {{ inventory_hostname }}</h1>"
-        dest: /var/www/html/index.html
+    - name: Copy Customer 2 Index
+      copy:
+        src: ../../websites/customer2/index.php
+        dest: /var/www/customer2/index.php
+        owner: www-data

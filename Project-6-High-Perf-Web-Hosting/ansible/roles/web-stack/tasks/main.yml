@@ -1,22 +1,45 @@
-- name: Update apt cache
-  apt:
-    update_cache: yes
-
+---
 - name: Install Nginx and PHP-FPM
   apt:
     name:
       - nginx
       - php-fpm
+      - php-cli
     state: present
+    update_cache: yes
 
-- name: Start and enable Nginx
-  service:
-    name: nginx
-    state: started
-    enabled: yes
+- name: Performance Tuning - Configure PHP-FPM pool
+  template:
+    src: php-fpm.conf.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+  notify: restart php-fpm
 
-- name: Start and enable PHP-FPM
-  service:
-    name: php8.1-fpm
-    state: started
-    enabled: yes
+- name: Ensure web directories exist for customers
+  file:
+    path: "/var/www/{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  with_items:
+    - customer1
+    - customer2
+    - default
+
+- name: Deploy Nginx Virtual Hosts for Customers
+  template:
+    src: customer-site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item }}.conf"
+  with_items:
+    - customer1
+    - customer2
+  notify: restart nginx
+
+- name: Enable customer sites
+  file:
+    src: "/etc/nginx/sites-available/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
+    state: link
+  with_items:
+    - customer1
+    - customer2

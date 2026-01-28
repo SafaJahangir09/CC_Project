@@ -1,15 +1,32 @@
-upstream backend {
-    server 10.0.1.22;
-    server 10.0.2.33;
+upstream frontend_cluster {
+    {% for host in groups['backend'] %}
+    server {{ hostvars[host]['ansible_host'] }};
+    {% endfor %}
 }
 
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m inactive=60m;
 server {
-    listen 80;
+    listen 80 default_server;
+    listen [::]:80 default_server;
     server_name _;
+    return 301 https://$host$request_uri;
+}
+
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
     location / {
-        proxy_pass http://backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache my_cache;
+        proxy_cache_valid 200 60m;
+        proxy_pass http://frontend_cluster;
+        proxy_set_header Host customer1.local; 
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    add_header X-Cache-Status $upstream_cache_status;
     }
 }

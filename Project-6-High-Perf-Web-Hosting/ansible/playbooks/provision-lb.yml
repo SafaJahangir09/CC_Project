@@ -1,0 +1,6 @@
+---
+- name: Provision High-Performance Load Balancer
+  hosts: web
+  become: yes
+  roles:
+    - lb-nginx

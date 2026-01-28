@@ -1,0 +1,4 @@
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+php_fpm_max_children: 5
+php_fpm_start_servers: 2

@@ -1,0 +1,13 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - me-central-1
+groups:
+  backend: "'backend' in tags.Name"
+  frontend: "'frontend' in tags.Name"
+  web: "'backend' in tags.Name" # Adding 'web' as an alias to match your LB playbook
+keyed_groups:
+  - key: tags.Name
+    separator: ""
+    prefix: ""
+hostnames:
+  - public-ip-address  # This tells Ansible to use the real IP as the host identifier

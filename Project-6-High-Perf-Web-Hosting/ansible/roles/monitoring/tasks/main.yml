@@ -1,0 +1,19 @@
+---
+- name: Ensure monitoring script is deployed
+  copy:
+    src: check-site.sh
+    dest: /usr/local/bin/check-site.sh
+    mode: '0755'
+
+- name: Create log file with correct permissions
+  file:
+    path: /var/log/site_checks.log
+    state: touch
+    owner: ubuntu
+    mode: '0644'
+
+- name: Requirement - Set up cron job to run every 5 minutes
+  cron:
+    name: "Check customer1 uptime"
+    minute: "*/5"
+    job: "/usr/local/bin/check-site.sh https://localhost > /dev/null 2>&1"

@@ -91,6 +91,51 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+
+resource "aws_security_group" "backend" {
+  name        = "${var.project}-${var.environment}-backend-sg"
+  description = "Allow SSH and traffic from frontend"
+  vpc_id      = aws_vpc.this.id
+
+  # Unified SSH for Ansible & Internal
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Unified HTTP/HTTPS
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all traffic from Frontend Security Group
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.frontend.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 resource "aws_security_group" "frontend" {
   name        = "${var.project}-${var.environment}-frontend-sg"
   description = "Allow HTTP traffic"
@@ -103,38 +148,19 @@ resource "aws_security_group" "frontend" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # ADD THIS BLOCK
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # This allows you to SSH from your Codespace
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_security_group" "backend" {
-  name        = "${var.project}-${var.environment}-backend-sg"
-  description = "Allow traffic from frontend"
-  vpc_id      = aws_vpc.this.id
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.frontend.id]
-  }
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"] # Allows SSH within the VPC
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
